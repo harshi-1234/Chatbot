@@ -1,5 +1,6 @@
-/* Chatbot.css */
+/* Chatbot.css - Optimized Version */
 
+/* Base Container Styles */
 .chatbot-container {
     height: 100vh;
     width: 100vw;
@@ -11,108 +12,104 @@
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+  
   .chat-content {
     width: 100%;
+    height: 100%;
+    padding-top: 60px;
   }
   
-  /* Welcome Section */
-  .welcome-section {
-    text-align: center;
-    margin-bottom: 40px;
-    transition: opacity 0.4s ease, transform 0.3s ease;
+  /* Chatbox Styles */
+  .chatbox {
+    width: 68%;
+    max-height: 72vh;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    margin: 0 auto 16px;
+    backdrop-filter: blur(12px);
+    box-shadow: 
+      0 0 20px rgba(0, 0, 0, 0.18),
+      inset 0 0 8px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(103, 114, 229, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 40%);
   }
   
-  .welcome-section.hidden {
-    opacity: 0;
-    transform: scale(0.95);
-    pointer-events: none;
+  /* Message Bubbles */
+  .message-bubble {
+    max-width: 80%;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border-radius: 18px;
+    line-height: 1.4;
+    position: relative;
+    animation: 
+      fadeIn 0.3s ease,
+      gentlePulse 0.6s ease;
+    backdrop-filter: blur(6px);
   }
   
+  .message-bubble.bot {
+    align-self: flex-start;
+    background: linear-gradient(135deg, rgba(100, 122, 255, 0.9), rgba(138, 99, 255, 0.9));
+    color: white;
+    border-bottom-left-radius: 4px;
+    box-shadow: 
+      0 4px 15px rgba(100, 122, 255, 0.3),
+      inset 0 0 12px rgba(255, 255, 255, 0.15);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .message-bubble.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, rgba(249, 168, 212, 0.9), rgba(125, 211, 252, 0.9));
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 
+      0 4px 15px rgba(125, 211, 252, 0.3),
+      inset 0 0 12px rgba(255, 255, 255, 0.15);
+  }
+  
+  /* Markdown Content */
+  .markdown-content {
+    overflow-wrap: break-word;
+  }
+  
+  .markdown-content a {
+    color: inherit;
+    text-decoration: underline;
+  }
+  
+  /* Options Styling */
   .bot-options {
-    margin-top: 10px;
-    display: flex; /* Ensure the options are displayed side by side */
-    justify-content: space-between; /* Ensures the buttons are spaced evenly */
-    gap: 12px; /* Adds space between the buttons */
-    flex-wrap: wrap; /* Allows wrapping if necessary on smaller screens */
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
   }
-  
-  
   
   .option-button {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 20px 24px;
-    border-radius: 20px;
-    color: white;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    min-width: 180px; /* Adjust width as needed */
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #4f46e5;
+    padding: 10px 18px;
+    border-radius: 12px;
     transition: all 0.3s ease;
+    box-shadow: 
+      0 4px 6px rgba(0, 0, 0, 0.05),
+      inset 0 0 10px rgba(255, 255, 255, 0.2);
   }
   
-  
- 
-.option-button:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    transform: scale(1.05);
-  }
-  
-  /* Chatbox Styling */
-  .chatbox {
-    width: 75%;              /* Make it wider */
-    max-height: 80vh;        /* Make it taller */
-    overflow-y: auto;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    padding: 30px;
-    margin: 0 auto 20px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 0 24px rgba(0, 0, 0, 0.2);
-    scroll-behavior: smooth;
-  }
-
-  /* Ensure that the container is fully centered */
-.text-center {
-    display: flex;
-    flex-direction: column; /* Stack items vertically */
-    justify-content: center; /* Center content vertically */
-    align-items: center; /* Center content horizontally */
-    width: 100%; /* Ensure the container takes full width */
-  }
-  
-  
-  
-  
-  
-  /* Messages */
-  .message {
-    margin-bottom: 16px;
-    display: flex;
-    max-width: 70%;
-    padding: 14px 18px;
-    border-radius: 20px;
-    word-break: break-word;
-    font-size: 14px;
-    line-height: 1.5;
-    backdrop-filter: blur(6px);
-    animation: fadeIn 0.4s ease;
-  }
-  
-  .message.bot {
-    background: linear-gradient(to right, #6366f1, #60a5fa);
-    color: white;
-    align-self: flex-start;
-    border-radius: 20px 20px 20px 4px;
-  }
-  
-  .message.user {
-    background: linear-gradient(to right, #34d399, #10b981);
-    color: white;
-    align-self: flex-end;
-    border-radius: 20px 20px 4px 20px;
+  .option-button:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 
+      0 6px 12px rgba(0, 0, 0, 0.1),
+      inset 0 0 15px rgba(255, 255, 255, 0.3);
   }
   
   /* Typing Bar */
@@ -122,19 +119,18 @@
     align-items: center;
     width: 60%;
     position: relative;
-    margin: 0 auto; /* updated */
+    margin: 0 auto;
   }
-  
   
   .typing-area {
     display: flex;
     align-items: center;
     width: 100%;
-    gap: 12px;
+    gap: 8px;
   }
   
   .typing-area textarea {
-    flex-grow: 1;
+    flex: 1;
     padding: 12px 16px;
     font-size: 14px;
     border-radius: 12px;
@@ -147,50 +143,222 @@
     box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.1);
   }
   
-  .typing-area button {
-    background-color: #2563eb;
-    color: white;
-    padding: 10px 20px;
+  /* Send Button */
+  .send-button {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-weight: bold;
-    height: fit-content;
-  }
-
-  .centered-message {
-    align-self: center;
-    text-align: center;
-    max-width: 90%; /* optional: lets it take up more width */
+    transition: all 0.3s ease;
+    margin-left: 8px;
+    color: white;
   }
   
-  
-  .typing-area button:hover {
-    background-color: #1d4ed8;
+  .send-button:hover {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
   }
   
-  /* Command Pop-up */
-  .command-popup {
+  .send-button:active {
+    transform: scale(0.96);
+  }
+  
+  .send-button:hover svg {
+    transform: translateX(2px);
+  }
+  
+  /* Command Popup */
+  .command-popup-container {
     position: absolute;
-    top: -160px;
+    bottom: 100%;
     left: 0;
     width: 100%;
-    background-color: rgba(20, 20, 35, 0.95);
-    padding: 12px;
+    padding-bottom: 8px;
+    z-index: 100;
+  }
+  
+  .command-popup {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(12px);
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
+    padding: 8px;
+    box-shadow: 
+      0 10px 15px -3px rgba(0, 0, 0, 0.2),
+      0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    animation: popupFadeIn 0.15s ease-out;
   }
   
   .command-option {
-    padding: 8px 14px;
-    color: #dbeafe;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
     border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 4px 0;
   }
   
   .command-option:hover {
-    background-color: #1e3a8a;
+    background: rgba(71, 85, 105, 0.5);
+  }
+  
+  .command-prefix {
+    color: #8b5cf6;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  
+  .command-text {
+    color: rgba(226, 232, 240, 0.9);
+    font-weight: 500;
+  }
+  
+  /* Welcome Screen */
+  .text-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 2rem 0;
+  }
+  
+  .welcome-heading {
+    font-size: 2.75rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  
+  .welcome-heading::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 25%;
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+    border-radius: 100%;
+  }
+  
+  .chatbot-welcome-sub {
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(199, 210, 254, 0.9);
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.5rem;
+  }
+  
+  .chatbot-welcome-sub::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #a5b4fc, transparent);
+  }
+  
+  /* Bubble Buttons */
+  .bubble-button {
+    border-radius: 24px;
+    padding: 1rem;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .bubble-button:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .bubble-onboarding {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  }
+  
+  .bubble-dev {
+    background: linear-gradient(135deg, #3b82f6, #f59e0b);
+  }
+  
+  .bubble-error {
+    background: linear-gradient(135deg, #ec4899, #f59e0b);
+  }
+  
+  /* Chat Symbol */
+  .chat-symbol {
+    display: flex;
+    justify-content: center;
+    opacity: 0.9;
+    transition: all 0.3s ease;
+  }
+  
+  .chat-symbol:hover {
+    transform: scale(1.1);
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(147, 197, 253, 0.5));
+  }
+  
+  /* Back Button */
+  .chatbot-back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.2s ease;
+  }
+  
+  .chatbot-back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Utility Classes */
+  .flex-nowrap {
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .flex-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
   }
   
   /* Animations */
@@ -205,3 +373,24 @@
     }
   }
   
+  @keyframes gentlePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+  }
+  
+  @keyframes popupFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Hide scrollbar */
+  ::-webkit-scrollbar {
+    display: none;
+  }
