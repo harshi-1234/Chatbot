@@ -11,6 +11,9 @@
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+  .chat-content {
+    width: 100%;
+  }
   
   /* Welcome Section */
   .welcome-section {
@@ -59,16 +62,29 @@
   
   /* Chatbox Styling */
   .chatbox {
-    width: 60%;
-    max-height: 60vh;
+    width: 75%;              /* Make it wider */
+    max-height: 80vh;        /* Make it taller */
     overflow-y: auto;
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 20px;
-    margin: 0 auto 20px; /* updated */
+    padding: 30px;
+    margin: 0 auto 20px;
     backdrop-filter: blur(12px);
     box-shadow: 0 0 24px rgba(0, 0, 0, 0.2);
+    scroll-behavior: smooth;
   }
+
+  /* Ensure that the container is fully centered */
+.text-center {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    width: 100%; /* Ensure the container takes full width */
+  }
+  
+  
+  
   
   
   /* Messages */
