@@ -1,0 +1,191 @@
+/* Chatbot.css */
+
+.chatbot-container {
+    height: 100vh;
+    width: 100vw;
+    background: radial-gradient(ellipse at top, #0f0f1c 0%, #090913 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  /* Welcome Section */
+  .welcome-section {
+    text-align: center;
+    margin-bottom: 40px;
+    transition: opacity 0.4s ease, transform 0.3s ease;
+  }
+  
+  .welcome-section.hidden {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+  }
+  
+  .bot-options {
+    margin-top: 10px;
+    display: flex; /* Ensure the options are displayed side by side */
+    justify-content: space-between; /* Ensures the buttons are spaced evenly */
+    gap: 12px; /* Adds space between the buttons */
+    flex-wrap: wrap; /* Allows wrapping if necessary on smaller screens */
+  }
+  
+  
+  
+  .option-button {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px 24px;
+    border-radius: 20px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    min-width: 180px; /* Adjust width as needed */
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  
+ 
+.option-button:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: scale(1.05);
+  }
+  
+  /* Chatbox Styling */
+  .chatbox {
+    width: 60%;
+    max-height: 60vh;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 0 auto 20px; /* updated */
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  
+  /* Messages */
+  .message {
+    margin-bottom: 16px;
+    display: flex;
+    max-width: 70%;
+    padding: 14px 18px;
+    border-radius: 20px;
+    word-break: break-word;
+    font-size: 14px;
+    line-height: 1.5;
+    backdrop-filter: blur(6px);
+    animation: fadeIn 0.4s ease;
+  }
+  
+  .message.bot {
+    background: linear-gradient(to right, #6366f1, #60a5fa);
+    color: white;
+    align-self: flex-start;
+    border-radius: 20px 20px 20px 4px;
+  }
+  
+  .message.user {
+    background: linear-gradient(to right, #34d399, #10b981);
+    color: white;
+    align-self: flex-end;
+    border-radius: 20px 20px 4px 20px;
+  }
+  
+  /* Typing Bar */
+  .typing-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60%;
+    position: relative;
+    margin: 0 auto; /* updated */
+  }
+  
+  
+  .typing-area {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .typing-area textarea {
+    flex-grow: 1;
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 12px;
+    border: none;
+    resize: none;
+    min-height: 48px;
+    background-color: #1c1c2e;
+    color: white;
+    outline: none;
+    box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.1);
+  }
+  
+  .typing-area button {
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    height: fit-content;
+  }
+
+  .centered-message {
+    align-self: center;
+    text-align: center;
+    max-width: 90%; /* optional: lets it take up more width */
+  }
+  
+  
+  .typing-area button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  /* Command Pop-up */
+  .command-popup {
+    position: absolute;
+    top: -160px;
+    left: 0;
+    width: 100%;
+    background-color: rgba(20, 20, 35, 0.95);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+  
+  .command-option {
+    padding: 8px 14px;
+    color: #dbeafe;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  .command-option:hover {
+    background-color: #1e3a8a;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
