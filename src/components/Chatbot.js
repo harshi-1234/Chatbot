@@ -314,28 +314,72 @@ const [productGroup, setProductGroup] = useState("");
   /**
    * Handles sending a message
    */
-  const handleSendMessage = () => {
-    if (userInput.trim() !== "") {
-      const newMessages = [...messages, { text: userInput, isBot: false }];
-      setMessages(newMessages);
-      setUserInput("");
-      setShowWelcome(false);
-      setShowBackButton(true);
-      if (currentFlow[0]?.id === "pubcatAttributeName") {
-        setAttributeName(userInput)
-      } else if (currentFlow[0]?.id === "enterNamespace") {
-        setNamespace(userInput)
-      } else if (currentFlow[0]?.id === "imsAttributeName") {
-        setImsAttrName(userInput)
-      } else if (currentFlow[0]?.id === "pubcatAttributeSchema") {
-        setSchema(userInput)
+  const handleSendMessage = async () => {
+    if (userInput.trim() === "") return;
+  
+    const input = userInput.trim();
+    const newMessages = [...messages, { text: input, isBot: false }];
+    setMessages(newMessages);
+    setUserInput("");
+    setShowWelcome(false);
+    setShowBackButton(true);
+  
+    const commandMatch = input.match(/^\/(\w+)\s+(.*)$/);
+    if (commandMatch) {
+      const command = commandMatch[1]; // e.g., "attri"
+      const prompt = commandMatch[2];  // user's actual question
+  
+      let kb = null;
+      if (command === "attr") {
+        kb = "attribute-onboarding";
+      } else if (command === "mkt") {
+        kb = "marketplace-onboarding";
+      } else if (command === "dev") {
+        kb = "dev";
+      } else if (command === "code") {
+        kb = "codebase";
       }
-      
-      if (!isOnboardingActive) {
-        handleBotResponse(userInput);
-      } else {
-        handleInputSubmit(userInput);
+  
+      if (kb) {
+        try {
+          const { data } = await axios.post(API_URL, {
+            kb,
+            prompt
+          });
+  
+          setMessages((prev) => [
+            ...prev,
+            {
+              text: data.response || "Here's what I found!",
+              isBot: true,
+              options: data.options || null
+            }
+          ]);
+        } catch (error) {
+          console.error("Error calling Lambda:", error);
+          setMessages((prev) => [
+            ...prev,
+            { text: "Sorry, something went wrong. Please try again.", isBot: true }
+          ]);
+        }
+        return; // stop further execution
       }
+    }
+  
+    if (currentFlow[0]?.id === "pubcatAttributeName") {
+      setAttributeName(input);
+    } else if (currentFlow[0]?.id === "enterNamespace") {
+      setNamespace(input);
+    } else if (currentFlow[0]?.id === "imsAttributeName") {
+      setImsAttrName(input);
+    } else if (currentFlow[0]?.id === "pubcatAttributeSchema") {
+      setSchema(input);
+    }
+  
+    if (!isOnboardingActive) {
+      handleBotResponse(input);
+    } else {
+      handleInputSubmit(input);
     }
   };
 
@@ -362,7 +406,7 @@ const [productGroup, setProductGroup] = useState("");
   
     try {
       const { data } = await axios.post(API_URL, {
-        kb: "codebase",
+        kb: "default",
         prompt: option.label
       });
       
