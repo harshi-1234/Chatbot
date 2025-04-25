@@ -11,21 +11,15 @@ import { generateFinalPrompt } from '../data/generatePrompt';
       type: "options",
       message: "Do you want to use an exisiting attribute? Attributes that are already onboarded to DPP are listed here: [SDLs](https://code.amazon.com/packages/DigitalPublishingTypes/trees/mainline/--/repository/attribute-schema/com/amazon/ingestion/dpp).",
       options: [
-        { label: "Yes", next: "enterNamespace" },
+        { label: "Yes", next: "pubcatAttributeNameWithoutSchema" },
         { label: "No", next: "pubcatAttributeName" }
       ]
-    },
-    enterNamespace: {
-        id: "enterNamespace",
-      type: "input",
-      message: "Enter the namespace of your product. The corresponding namespace for a client token can be identified here: [DPPCPClientTokenConfig](https://code.amazon.com/packages/DPPCatalogPublisherService/blobs/mainline/--/brazil-config/app/DPPCatalogPublisherService.cfg)",
-      next: "pubcatAttributeNameWithoutSchema"
     },
     pubcatAttributeNameWithoutSchema: {
         id: "pubcatAttributeName",
       type: "input",
-      message: "Lets create a new attribute, Can you enter the name of new pubcat Attribute",
-      next: "imsAttributeName"
+      message: "Can you enter the name of the pubcat Attribute you would like to use.",
+      next: "enterNamespace"
     },
     pubcatAttributeName: {
         id: "pubcatAttributeName",
@@ -38,6 +32,12 @@ import { generateFinalPrompt } from '../data/generatePrompt';
       type: "input",
       message: "Enter the pubcat Attribute Schema. Refer [defining the Attribute Schema in DPP](https://w.amazon.com/bin/view/DigitalPublishing/DPP2.0/Creating_new_attributes).",
       next: "enterNamespace"
+    },
+    enterNamespace: {
+        id: "enterNamespace",
+      type: "input",
+      message: "Enter the namespace of your product. The corresponding namespace for a client token can be identified here: [DPPCPClientTokenConfig](https://code.amazon.com/packages/DPPCatalogPublisherService/blobs/mainline/--/brazil-config/app/DPPCatalogPublisherService.cfg)",
+      next: "imsAttributeName"
     },
     imsAttributeName: {
         id: "imsAttributeName",
@@ -86,7 +86,7 @@ import { generateFinalPrompt } from '../data/generatePrompt';
 const Chatbot = () => {
   // State management for chat messages and flow control
   const [messages, setMessages] = useState(allSteps.start.id); // Stores all chat messages
-  const [currentFlow, setCurrentFlow] = useState([]); // Tracks current onboarding flow step
+  const [currentFlow, setCurrentFlow] = useState([allSteps.start]); // Tracks current onboarding flow step
   const [showTypingBar, setShowTypingBar] = useState(true); // Controls typing bar visibility
   const [userInput, setUserInput] = useState(""); // Stores user input text
   const [showCommandPopup, setShowCommandPopup] = useState(false); // Controls command popup visibility
@@ -110,7 +110,6 @@ const [productGroup, setProductGroup] = useState("");
  
 
   const handleSubmitToLambda = async () => {
-    console.log(attributeName)
     const finalPrompt = generateFinalPrompt({
       isExistingAttribute,
       attributeName,
@@ -167,7 +166,7 @@ const [productGroup, setProductGroup] = useState("");
       isBot: true,
       options: firstStep.options 
     }]);
-    setCurrentFlow([allSteps.start]);
+    // setCurrentFlow([allSteps.start]);
     setIsOnboardingActive(true);
     setShowTypingBar(false);
     setShowWelcome(false);
@@ -236,7 +235,6 @@ const [productGroup, setProductGroup] = useState("");
   /**
    * Handles option selection in the onboarding flow
    */
-  console.log(currentFlow)
   const handleOption = (option) => {
     const userMessage = { text: option.label, isBot: false };
     setMessages((prev) => [...prev, userMessage]);
@@ -245,7 +243,6 @@ const [productGroup, setProductGroup] = useState("");
       handleSubmitToLambda()
     //   setIsOnboardingActive(false);
     }
-    console.log(currentFlow, currentFlow[0]?.id, option.label)
     if (currentFlow[0]?.id === "start") {
         setIsExistingAttribute(option.label)
     } else if (currentFlow[0]?.id === "productGroup") {
@@ -255,7 +252,7 @@ const [productGroup, setProductGroup] = useState("");
     }  else if (currentFlow[0]?.id === "isDPPOneRequired") {
         setOnboardToDPP(option.label)
     } 
-  console.log(option.next, allSteps[option.next])
+    
     if (option.next && allSteps[option.next]) {
       setCurrentFlow([allSteps[option.next]]);
     } else {
@@ -458,14 +455,14 @@ const [productGroup, setProductGroup] = useState("");
                     className="bubble-button bubble-dev flex-shrink-0 w-[120px]"
                   >
                     <p className="button-text text-lg font-semibold">/dev</p>
-                    <p className="button-subheading">Developer debugging</p>
+                    <p className="button-subheading">Docs and commands</p>
                   </button>
                   <button
                     onClick={() => handleOptionClick({ label: "/error" })}
                     className="bubble-button bubble-error flex-shrink-0 w-[120px]"
                   >
                     <p className="button-text text-lg font-semibold">/code</p>
-                    <p className="button-subheading">Understanding code base</p>
+                    <p className="button-subheading">Query code base</p>
                   </button>
                   <button
                     onClick={() => handleOptionClick({ label: "/error" })}
