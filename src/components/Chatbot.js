@@ -2,27 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import "./Chatbot.css";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import { generateFinalPrompt } from '../data/generatePrompt';
 
-const Chatbot = () => {
-  // State management for chat messages and flow control
-  const [messages, setMessages] = useState([]); // Stores all chat messages
-  const [currentFlow, setCurrentFlow] = useState([]); // Tracks current onboarding flow step
-  const [showTypingBar, setShowTypingBar] = useState(true); // Controls typing bar visibility
-  const [userInput, setUserInput] = useState(""); // Stores user input text
-  const [showCommandPopup, setShowCommandPopup] = useState(false); // Controls command popup visibility
-  const [isWaitingForInput, setIsWaitingForInput] = useState(false); // Tracks if waiting for user input
-  const [showWelcome, setShowWelcome] = useState(true); // Controls welcome screen visibility
-  const [isOnboardingActive, setIsOnboardingActive] = useState(false); // Tracks onboarding status
-  const [showBackButton, setShowBackButton] = useState(false); // Controls back button visibility
-  const [onboardingData, setOnboardingData] = useState({});
-  
-  // Refs and API configuration
-  const chatboxRef = useRef(null); // Reference to chatbox container
-  const API_URL = "https://w5sbw23kgi.execute-api.us-west-2.amazonaws.com/AutomatedAttribute";
-
-  // Onboarding flow configuration
-  const allSteps = {
+ // Onboarding flow configuration
+ const allSteps = {
     start: {
+      id: "start",
       type: "options",
       message: "Do you want to use an exisiting attribute? Attributes that are already onboarded to DPP are listed here: [SDLs](https://code.amazon.com/packages/DigitalPublishingTypes/trees/mainline/--/repository/attribute-schema/com/amazon/ingestion/dpp).",
       options: [
@@ -31,26 +16,37 @@ const Chatbot = () => {
       ]
     },
     enterNamespace: {
+        id: "enterNamespace",
       type: "input",
       message: "Enter the namespace of your product. The corresponding namespace for a client token can be identified here: [DPPCPClientTokenConfig](https://code.amazon.com/packages/DPPCatalogPublisherService/blobs/mainline/--/brazil-config/app/DPPCatalogPublisherService.cfg)",
+      next: "pubcatAttributeNameWithoutSchema"
+    },
+    pubcatAttributeNameWithoutSchema: {
+        id: "pubcatAttributeName",
+      type: "input",
+      message: "Lets create a new attribute, Can you enter the name of new pubcat Attribute",
       next: "imsAttributeName"
     },
     pubcatAttributeName: {
+        id: "pubcatAttributeName",
       type: "input",
       message: "Lets create a new attribute, Can you enter the name of new pubcat Attribute",
       next: "pubcatAttributeSchema"
     },
     pubcatAttributeSchema: {
+        id: "pubcatAttributeSchema",
       type: "input",
       message: "Enter the pubcat Attribute Schema. Refer [defining the Attribute Schema in DPP](https://w.amazon.com/bin/view/DigitalPublishing/DPP2.0/Creating_new_attributes).",
       next: "enterNamespace"
     },
     imsAttributeName: {
+        id: "imsAttributeName",
       type: "input",
       message: "Enter the IMS Attribute Name. Refer [Marketplace Catalog Attributes](https://tiny.amazon.com/1427psrns/g2s2amazeditn2) to get appropriate IMS catalog attribute that suits your use-case.",
       next: "productGroup"
     },
     productGroup: {
+        id: "productGroup",
       type: "options",
       message: "Select the product group for your attribute",      
       options: [
@@ -62,6 +58,7 @@ const Chatbot = () => {
       ]
     },
     isDigicatRequired: {
+        id: "isDigicatRequired",
       type: "options",
       message: "Do you want to onboard this attribute to Digicat?",      
       options: [
@@ -70,6 +67,7 @@ const Chatbot = () => {
       ]
     },
     isDPPOneRequired: {
+        id: "isDPPOneRequired",
       type: "options",
       message: "Do you want to onboard this attribute to DPP 1.0?",      
       options: [
@@ -78,8 +76,63 @@ const Chatbot = () => {
       ]
     },
     attributeFlowEnds: {
+        id: "attributeFlowEnds",
       type: "text",
-      message: "Thank you for providing all the information! I'm now processing your attribute onboarding request..."
+      message: "It will take few seconds for the system to respond back."
+    }
+  };
+
+
+const Chatbot = () => {
+  // State management for chat messages and flow control
+  const [messages, setMessages] = useState(allSteps.start.id); // Stores all chat messages
+  const [currentFlow, setCurrentFlow] = useState([]); // Tracks current onboarding flow step
+  const [showTypingBar, setShowTypingBar] = useState(true); // Controls typing bar visibility
+  const [userInput, setUserInput] = useState(""); // Stores user input text
+  const [showCommandPopup, setShowCommandPopup] = useState(false); // Controls command popup visibility
+  const [isWaitingForInput, setIsWaitingForInput] = useState(false); // Tracks if waiting for user input
+  const [showWelcome, setShowWelcome] = useState(true); // Controls welcome screen visibility
+  const [isOnboardingActive, setIsOnboardingActive] = useState(false); // Tracks onboarding status
+  const [showBackButton, setShowBackButton] = useState(false); // Controls back button visibility
+  const [isExistingAttribute, setIsExistingAttribute] = useState(null);
+ const [attributeName, setAttributeName] = useState("");
+ const [namespace, setNamespace] = useState("");
+ const [schema, setSchema] = useState("");
+ const [imsAttrName, setImsAttrName] = useState("");
+const [onboardToDPP, setOnboardToDPP] = useState(null);
+const [onboardToDigiCat, setOnboardToDigiCat] = useState(null);
+const [productGroup, setProductGroup] = useState("");
+  
+  // Refs and API configuration
+  const chatboxRef = useRef(null); // Reference to chatbox container
+  const API_URL = "https://w5sbw23kgi.execute-api.us-west-2.amazonaws.com/AutomatedAttribute";
+
+ 
+
+  const handleSubmitToLambda = async () => {
+    console.log(attributeName)
+    const finalPrompt = generateFinalPrompt({
+      isExistingAttribute,
+      attributeName,
+      namespace,
+      schema,
+      imsAttrName,
+      onboardToDPP,
+      onboardToDigiCat,
+      productGroup
+    });
+    console.log(finalPrompt)
+  
+    try {
+      const { data } = await axios.post(API_URL, {
+        kb: "onboarding",
+        prompt: finalPrompt
+      });
+  
+      console.log("Lambda response:", data);
+      // Handle the data or show it to the user
+    } catch (error) {
+      console.error("Failed to call Lambda:", error);
     }
   };
 
@@ -114,7 +167,7 @@ const Chatbot = () => {
       isBot: true,
       options: firstStep.options 
     }]);
-    setCurrentFlow([allSteps[firstStep.next]]);
+    setCurrentFlow([allSteps.start]);
     setIsOnboardingActive(true);
     setShowTypingBar(false);
     setShowWelcome(false);
@@ -133,14 +186,14 @@ const Chatbot = () => {
         text: nextMessage.message, 
         isBot: true 
       }]);
-      setCurrentFlow((prev) => prev.slice(1));
+    //   setCurrentFlow((prev) => prev.slice(1));
     } else if (nextMessage.type === "options") {
       setMessages((prev) => [...prev, { 
         text: nextMessage.message, 
         isBot: true, 
         options: nextMessage.options 
       }]);
-      setCurrentFlow((prev) => prev.slice(1));
+    //   setCurrentFlow((prev) => prev.slice(1));
     } else if (nextMessage.type === "input") {
       setMessages((prev) => [...prev, { 
         text: nextMessage.message, 
@@ -183,28 +236,26 @@ const Chatbot = () => {
   /**
    * Handles option selection in the onboarding flow
    */
+  console.log(currentFlow)
   const handleOption = (option) => {
     const userMessage = { text: option.label, isBot: false };
     setMessages((prev) => [...prev, userMessage]);
     
-    // Get the current step name (the key from allSteps)
-    const currentStepName = Object.keys(allSteps).find(
-      key => allSteps[key] === currentFlow[0]
-    );
-    
-    // Store the response
-    if (currentStepName) {
-      setOnboardingData(prev => ({
-        ...prev,
-        [currentStepName]: option.label
-      }));
-    }
-  
     if (option.next === "attributeFlowEnds") {
-      sendOnboardingData();
-      setIsOnboardingActive(false);
+      handleSubmitToLambda()
+    //   setIsOnboardingActive(false);
     }
-  
+    console.log(currentFlow, currentFlow[0]?.id, option.label)
+    if (currentFlow[0]?.id === "start") {
+        setIsExistingAttribute(option.label)
+    } else if (currentFlow[0]?.id === "productGroup") {
+        setProductGroup(option.label)
+    } else if (currentFlow[0]?.id === "isDigicatRequired") {
+        setOnboardToDigiCat(option.label)
+    }  else if (currentFlow[0]?.id === "isDPPOneRequired") {
+        setOnboardToDPP(option.label)
+    } 
+  console.log(option.next, allSteps[option.next])
     if (option.next && allSteps[option.next]) {
       setCurrentFlow([allSteps[option.next]]);
     } else {
@@ -227,19 +278,6 @@ const Chatbot = () => {
     const updatedMessages = [...messages, userMessage];
     const updatedFlow = currentFlow.slice(1);
     
-    // Get the current step name
-    const currentStepName = Object.keys(allSteps).find(
-      key => allSteps[key] === currentFlow[0]
-    );
-    
-    // Store the response
-    if (currentStepName) {
-      setOnboardingData(prev => ({
-        ...prev,
-        [currentStepName]: input
-      }));
-    }
-  
     if (nextKey && allSteps[nextKey]) {
       updatedFlow.unshift(allSteps[nextKey]);
     }
@@ -248,46 +286,6 @@ const Chatbot = () => {
     setCurrentFlow(updatedFlow);
     setIsWaitingForInput(false);
   };
-
-  const sendOnboardingData = async () => {
-    try {
-      // Format the prompt from collected data
-      const prompt = Object.entries(onboardingData)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join('\n');
-  
-      // Structure the request exactly like your working example
-      const requestPayload = {
-        kb: "attribute_onboarding", // Changed from "codebase" to distinguish flows
-        prompt: prompt
-      };
-  
-      console.log("Sending to Lambda:", requestPayload); // For debugging
-  
-      const { data } = await axios.post(API_URL, requestPayload);
-  
-      setMessages(prev => [...prev, {
-        text: data.response || "Attribute onboarding submitted successfully!",
-        isBot: true
-      }]);
-  
-    } catch (error) {
-      console.error("Onboarding submission error:", error);
-      
-      let errorMessage = "Sorry, something went wrong. Please try again.";
-      if (error.response?.data?.error) {
-        errorMessage = `Error: ${error.response.data.error}`;
-      }
-  
-      setMessages(prev => [...prev, {
-        text: errorMessage,
-        isBot: true
-      }]);
-    } finally {
-      setOnboardingData({});
-    }
-  };
-
 
   /**
    * Handles input change and detects command trigger
@@ -326,6 +324,15 @@ const Chatbot = () => {
       setUserInput("");
       setShowWelcome(false);
       setShowBackButton(true);
+      if (currentFlow[0]?.id === "pubcatAttributeName") {
+        setAttributeName(userInput)
+      } else if (currentFlow[0]?.id === "enterNamespace") {
+        setNamespace(userInput)
+      } else if (currentFlow[0]?.id === "imsAttributeName") {
+        setImsAttrName(userInput)
+      } else if (currentFlow[0]?.id === "pubcatAttributeSchema") {
+        setSchema(userInput)
+      }
       
       if (!isOnboardingActive) {
         handleBotResponse(userInput);

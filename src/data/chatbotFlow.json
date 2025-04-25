@@ -1,44 +1,48 @@
-{
-    "IssueCategory": {
-      "message": "Hi! Please select your issue category:",
+[
+    {
+      "message": "Attributes that are already onboarded to DPP are listed here: [SDLs](https://code.amazon.com/packages/DigitalPublishingTypes/trees/mainline/--/repository/attribute-schema/com/amazon/ingestion/dpp)",
+      "type": "link"
+    },
+    {
+      "message": "Is the attribute you want to onboard present in the list?",
+      "type": "question",
       "options": [
-        { "label": "Ebook - Buyability or Buy box Issue", "next": "BuyabilityStart" },
-        { "label": "Ebook Product/Cover Image Debugging", "next": "ImageDebugging" },
-        { "label": "Modify/Update attribute value", "next": "ModifyUpdate" },
-        { "label": "My change is not reflecting in details page", "next": "NoReflection" },
-        { "label": "Permission Request / Enquiries", "next": "PermissionRequest" },
-        { "label": "My Issue not listed here", "next": "CustomIssue" }
+        {
+          "label": "Yes",
+          "next": [
+            {
+              "message": "Enter your namespace. You can find the corresponding namespace for a client token here: [DPPCPClientTokenConfig](https://code.amazon.com/packages/DPPCatalogPublisherService/blobs/mainline/--/brazil-config/app/DPPCatalogPublisherService.cfg)",
+              "type": "input"
+            }
+          ]
+        },
+        {
+          "label": "No",
+          "next": [
+            {
+              "message": "Enter your namespace, attribute name, and SDL.",
+              "type": "input"
+            }
+          ]
+        }
       ]
     },
-    "BuyabilityStart": {
-      "message": "You selected Ebook - Buyability or Buy box Issue. To find why the ASIN is not buyable, please click the following link.",
-      "options": [
-        { "label": "DSOA Self Service Buyability Troubleshooter", "next": "DSOADashboard" }
-      ]
+    {
+      "message": "Enter the IMS attribute name. Refer to [Marketplace Catalog Attributes](https://tiny.amazon.com/1427psrns/g2s2amazeditn2) and also check this [wiki](https://metadatawiki.selection.amazon.dev/) to find the appropriate IMS catalog attribute for your use case.",
+      "type": "input"
     },
-    "DSOADashboard": {
-      "message": "To access DSOA dashboard, you need to be part of DSOA-ui-read, which is a manager approval model. Please ask your manager to add you to the LDAP group.",
-      "options": [
-        { "label": "Were you able to root cause and find the next action item for your issue?", "next": "RootCauseCheck" }
-      ]
+    {
+      "message": "Select the Product Group.",
+      "type": "dropdown",
+      "options": ["Kindle", "Subscription", "Other"]
     },
-    "RootCauseCheck": {
-      "message": "Did DSOA help resolve the issue?",
-      "options": [
-        { "label": "Yes", "next": "Resolved" },
-        { "label": "No", "next": "MoreHelp" }
-      ]
+    {
+      "message": "Do you want to onboard this attribute to DPP1.0?",
+      "type": "yesno"
     },
-    "MoreHelp": {
-      "message": "What was incorrect from the previous step?",
-      "options": [
-        { "label": "I don't have access to DSOA dashboard", "next": "AccessIssue" },
-        { "label": "No Error in DSOA dashboard", "next": "NoError" },
-        { "label": "Mandatory Attributes are shown as missing", "next": "MissingAttributes" },
-        { "label": "ASIN Suppression Issue", "next": "SuppressionIssue" },
-        { "label": "Sales Rights Issue", "next": "SalesRightsIssue" },
-        { "label": "Issue in DIPS Price information", "next": "PriceIssue" }
-      ]
+    {
+      "message": "Do you want to onboard this attribute to Digicat?",
+      "type": "yesno"
     }
-  }
+  ]
   
