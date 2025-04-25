@@ -120,18 +120,23 @@ const [productGroup, setProductGroup] = useState("");
       onboardToDigiCat,
       productGroup
     });
-    console.log(finalPrompt)
   
     try {
       const { data } = await axios.post(API_URL, {
-        kb: "onboarding",
+        kb: "attribute-onboarding",
         prompt: finalPrompt
       });
   
-      console.log("Lambda response:", data);
-      // Handle the data or show it to the user
+      // Add the Lambda response to messages
+      setMessages((prev) => [...prev, { 
+        text: data.response || "Here are the onboarding details:", 
+        isBot: true 
+      }]);
+      
+      return data;
     } catch (error) {
       console.error("Failed to call Lambda:", error);
+      throw error; // Re-throw to be caught in handleOption
     }
   };
 
@@ -235,13 +240,26 @@ const [productGroup, setProductGroup] = useState("");
   /**
    * Handles option selection in the onboarding flow
    */
-  const handleOption = (option) => {
+  const handleOption = async (option) => {
     const userMessage = { text: option.label, isBot: false };
     setMessages((prev) => [...prev, userMessage]);
     
     if (option.next === "attributeFlowEnds") {
-      handleSubmitToLambda()
-    //   setIsOnboardingActive(false);
+      // Add loading message
+      setMessages((prev) => [...prev, { 
+        text: "It will take few seconds for the system to respond back...", 
+        isBot: true 
+      }]);
+      
+      try {
+        await handleSubmitToLambda(); // Wait for Lambda response
+      } catch (error) {
+        setMessages((prev) => [...prev, { 
+          text: "Error processing your request. Please try again.", 
+          isBot: true 
+        }]);
+      }
+      return;
     }
     if (currentFlow[0]?.id === "start") {
         setIsExistingAttribute(option.label)
@@ -434,7 +452,7 @@ const [productGroup, setProductGroup] = useState("");
   
     try {
       const { data } = await axios.post(API_URL, {
-        kb: "codebase",
+        kb: "default",
         prompt: input
       });
   
