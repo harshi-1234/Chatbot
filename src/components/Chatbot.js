@@ -14,6 +14,7 @@ const Chatbot = () => {
   const [showWelcome, setShowWelcome] = useState(true); // Controls welcome screen visibility
   const [isOnboardingActive, setIsOnboardingActive] = useState(false); // Tracks onboarding status
   const [showBackButton, setShowBackButton] = useState(false); // Controls back button visibility
+  const [onboardingData, setOnboardingData] = useState({});
   
   // Refs and API configuration
   const chatboxRef = useRef(null); // Reference to chatbox container
@@ -23,7 +24,7 @@ const Chatbot = () => {
   const allSteps = {
     start: {
       type: "options",
-      message: "Attributes that are already onboarded to DPP are listed here: [SDLs](https://code.amazon.com/packages/DigitalPublishingTypes/trees/mainline/--/repository/attribute-schema/com/amazon/ingestion/dpp). Attribute you want to onboard is present in the list?",
+      message: "Do you want to use an exisiting attribute? Attributes that are already onboarded to DPP are listed here: [SDLs](https://code.amazon.com/packages/DigitalPublishingTypes/trees/mainline/--/repository/attribute-schema/com/amazon/ingestion/dpp).",
       options: [
         { label: "Yes", next: "enterNamespace" },
         { label: "No", next: "pubcatAttributeName" }
@@ -31,22 +32,22 @@ const Chatbot = () => {
     },
     enterNamespace: {
       type: "input",
-      message: "Type the namespace:",
+      message: "Enter the namespace of your product. The corresponding namespace for a client token can be identified here: [DPPCPClientTokenConfig](https://code.amazon.com/packages/DPPCatalogPublisherService/blobs/mainline/--/brazil-config/app/DPPCatalogPublisherService.cfg)",
       next: "imsAttributeName"
     },
     pubcatAttributeName: {
       type: "input",
-      message: "Type the pubcat Attribute Name:",
+      message: "Lets create a new attribute, Can you enter the name of new pubcat Attribute",
       next: "pubcatAttributeSchema"
     },
     pubcatAttributeSchema: {
       type: "input",
-      message: "Type the pubcat Attribute Schema:",
+      message: "Enter the pubcat Attribute Schema. Refer [defining the Attribute Schema in DPP](https://w.amazon.com/bin/view/DigitalPublishing/DPP2.0/Creating_new_attributes).",
       next: "enterNamespace"
     },
     imsAttributeName: {
       type: "input",
-      message: "Type the IMS Attribute Name:",
+      message: "Enter the IMS Attribute Name. Refer [Marketplace Catalog Attributes](https://tiny.amazon.com/1427psrns/g2s2amazeditn2) to get appropriate IMS catalog attribute that suits your use-case.",
       next: "productGroup"
     },
     productGroup: {
@@ -78,7 +79,7 @@ const Chatbot = () => {
     },
     attributeFlowEnds: {
       type: "text",
-      message: "It will take few seconds for the system to respond back."
+      message: "Thank you for providing all the information! I'm now processing your attribute onboarding request..."
     }
   };
 
@@ -88,7 +89,7 @@ const Chatbot = () => {
    */
   const handleBackToMain = () => {
     setMessages([{
-      text: "Hi, how can I help?",
+      text: "Hi, how can I help you?",
       isBot: true,
       cards: [
         { title: "Onboarding", bg: "from-purple-500 to-blue-400", label: "/onboarding" },
@@ -186,7 +187,21 @@ const Chatbot = () => {
     const userMessage = { text: option.label, isBot: false };
     setMessages((prev) => [...prev, userMessage]);
     
+    // Get the current step name (the key from allSteps)
+    const currentStepName = Object.keys(allSteps).find(
+      key => allSteps[key] === currentFlow[0]
+    );
+    
+    // Store the response
+    if (currentStepName) {
+      setOnboardingData(prev => ({
+        ...prev,
+        [currentStepName]: option.label
+      }));
+    }
+  
     if (option.next === "attributeFlowEnds") {
+      sendOnboardingData();
       setIsOnboardingActive(false);
     }
   
@@ -212,6 +227,19 @@ const Chatbot = () => {
     const updatedMessages = [...messages, userMessage];
     const updatedFlow = currentFlow.slice(1);
     
+    // Get the current step name
+    const currentStepName = Object.keys(allSteps).find(
+      key => allSteps[key] === currentFlow[0]
+    );
+    
+    // Store the response
+    if (currentStepName) {
+      setOnboardingData(prev => ({
+        ...prev,
+        [currentStepName]: input
+      }));
+    }
+  
     if (nextKey && allSteps[nextKey]) {
       updatedFlow.unshift(allSteps[nextKey]);
     }
@@ -220,6 +248,46 @@ const Chatbot = () => {
     setCurrentFlow(updatedFlow);
     setIsWaitingForInput(false);
   };
+
+  const sendOnboardingData = async () => {
+    try {
+      // Format the prompt from collected data
+      const prompt = Object.entries(onboardingData)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+  
+      // Structure the request exactly like your working example
+      const requestPayload = {
+        kb: "attribute_onboarding", // Changed from "codebase" to distinguish flows
+        prompt: prompt
+      };
+  
+      console.log("Sending to Lambda:", requestPayload); // For debugging
+  
+      const { data } = await axios.post(API_URL, requestPayload);
+  
+      setMessages(prev => [...prev, {
+        text: data.response || "Attribute onboarding submitted successfully!",
+        isBot: true
+      }]);
+  
+    } catch (error) {
+      console.error("Onboarding submission error:", error);
+      
+      let errorMessage = "Sorry, something went wrong. Please try again.";
+      if (error.response?.data?.error) {
+        errorMessage = `Error: ${error.response.data.error}`;
+      }
+  
+      setMessages(prev => [...prev, {
+        text: errorMessage,
+        isBot: true
+      }]);
+    } finally {
+      setOnboardingData({});
+    }
+  };
+
 
   /**
    * Handles input change and detects command trigger
@@ -370,24 +438,34 @@ const Chatbot = () => {
                 <h1 className="welcome-heading">How can I help?</h1>
                 
                 {/* Action buttons */}
-                <div className="flex flex-nowrap justify-center items-center gap-4 w-full px-4 py-6 overflow-x-auto">
+                <div className="card-container justify-center items-center gap-4 w-full px-4 py-6 overflow-x-auto">
                   <button
                     onClick={() => handleOptionClick({ label: "/onboarding" })}
                     className="bubble-button bubble-onboarding flex-shrink-0 w-[120px]"
                   >
-                    <h2 className="text-lg font-semibold">Onboarding</h2>
+                    <p className="button-text text-lg font-semibold">/attr</p>
+                    <p className="button-subheading">Attribute Onboarding</p>
                   </button>
                   <button
                     onClick={() => handleOptionClick({ label: "/dev" })}
                     className="bubble-button bubble-dev flex-shrink-0 w-[120px]"
                   >
-                    <h2 className="text-lg font-semibold">Dev</h2>
+                    <p className="button-text text-lg font-semibold">/dev</p>
+                    <p className="button-subheading">Developer debugging</p>
                   </button>
                   <button
                     onClick={() => handleOptionClick({ label: "/error" })}
                     className="bubble-button bubble-error flex-shrink-0 w-[120px]"
                   >
-                    <h2 className="text-lg font-semibold">Error</h2>
+                    <p className="button-text text-lg font-semibold">/code</p>
+                    <p className="button-subheading">Understanding code base</p>
+                  </button>
+                  <button
+                    onClick={() => handleOptionClick({ label: "/error" })}
+                    className="bubble-button bubble-mkt flex-shrink-0 w-[120px]"
+                  >
+                    <p className="button-text text-lg font-semibold">/mkt</p>
+                    <p className="button-subheading">Marketplace onboarding</p>
                   </button>
                 </div>
               </div>
@@ -446,7 +524,7 @@ const Chatbot = () => {
           {showCommandPopup && (
             <div className="command-popup-container">
               <div className="command-popup">
-                {["/attribute onboarding", "/error analysing", "/dev", "/doc"].map((cmd, idx) => (
+                {["/attr", "/dev", "/code", "/mkt"].map((cmd, idx) => (
                   <div
                     key={idx}
                     className="command-option"
